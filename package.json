@@ -1,0 +1,15 @@
+{
+  "name": "walhall-debug",
+  "version": "1.0.0",
+  "description": "Simple Container that outputs debug information in both human and machine readable form.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.7.1",
+    "pg": "^7.12.1"
+  }
+}

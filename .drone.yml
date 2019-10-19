@@ -1,0 +1,28 @@
+pipeline:
+
+  # Walhall requires git tags to exactly match the image tags. This step preserves the tags.
+  preserve-git-tags:
+    image: bash
+    commands:
+      # Check if the commit reference is a tag, if it is write the tag to the .tags file
+      - bash -c "[[ \"${DRONE_COMMIT_REF}\" == \"refs/tags/\"* ]] && echo \"${DRONE_COMMIT_REF#refs/tags/}\" > .tags"
+    when:
+      event: [tag]
+
+  # This step builds the image and pushes it to the registry.
+  # Drone is configured to use the Walhall registry by default, so no need to change anything.
+  build-docker-image-tag:
+    image: plugins/docker
+    registry:
+      from_secret: DOCKER_REGISTRY
+    repo:
+      from_secret: DOCKER_REPO
+    username:
+      from_secret: DOCKER_USERNAME
+    password:
+      from_secret: DOCKER_PASSWORD
+    insecure: true
+    file: Dockerfile
+    when:
+      event: [tag]
+      status: [success]

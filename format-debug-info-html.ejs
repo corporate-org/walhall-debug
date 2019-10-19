@@ -1,0 +1,67 @@
+<%
+// -1 if a < b, 0 if a === b, 1 if a > b
+function strcmp(a,b) {
+  return a < b ? -1 : (a === b ? 0 : 1);
+}
+
+// Turn an object into a table with alphabetically ordered keys
+function objToTable(obj) { %>
+  <table>
+  <% Object.entries(obj)
+    .sort((a, b) => strcmp(a[0], b[0])) // NOTE: this happens in place, but it is okay as we have a fresh array from obj.entries.
+    .forEach((row) => {%>
+      <tr><td><%= row[0] %></td><td><%= row[1]===undefined?"":row[1] %></td></tr>
+    <%});%>
+    </table>
+<%}
+
+// Each step in database testing is the same.
+function formatDbReportPart(name, part) {%>
+  <h2><%= name %></h2>
+  <%if (part) {
+    if (part.success) {%>
+      <p class="success"><%= name %> succeeded<p>
+    <%} else {%>
+      <p class="failure"><%= name %> failed<p>
+      <code><%= part.error %></code>
+    <%}
+  } else {%>
+    <p class="failure"><%= name %> Not attempted<p>
+  <%}
+}
+
+%>
+<html>
+  <head>
+    <title>Walhal Debug Information <%= debugInfo.timestamp %></title>
+  </head>
+  <style>
+  * {
+    font-family: ariel, sans-serif;
+  }
+  .success {
+    color: green;
+  }
+  .failure {
+    color: red;
+  }
+  code {
+    font-family: Courier New, monospace;
+  }
+  </style>
+  <body>
+  <i><%= debugInfo.timestamp %></i><br>
+  <h1>Environment</h1>
+
+  <% objToTable(debugInfo.env) %>
+
+  <h1>Database</h1>
+  <h2>Supplied Parameters</h2>
+  <%
+    objToTable(debugInfo.database.parameters);
+    formatDbReportPart("Connection", debugInfo.database.connection);
+    formatDbReportPart("Query", debugInfo.database.query);
+    formatDbReportPart("Close Connection", debugInfo.database.close);
+  %>
+  </body>
+</html>
