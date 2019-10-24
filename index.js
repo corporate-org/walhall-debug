@@ -2,6 +2,7 @@ const http = require("http");
 const url = require("url");
 const {testDatabase} = require("./test-db");
 const {formatDebugInfoAsHtml} = require("./format-debug-info-html");
+const fetch = require("node-fetch");
 
 // Run the tests to collect the debug information to show in the response
 // Note, this is an async function which means it returns a promise.
@@ -46,7 +47,13 @@ const httpServer = http.createServer((req, res) => {
     // Some diagnostic tests are asynchonus, so we use a Promise to pick up when they
     // all finish
     getDebugInfo().then(async (debugInfo) => {
-      if (reqUrl.pathname === "/json") {
+      if (reqUrl.pathname.startsWith("/fetch/") && reqUrl.query) {
+        res.setHeader('Content-Type', 'text/html');
+        fetch(reqUrl.query)
+          .then(fetchRes => fetchRes.text())
+          .catch(error => error.toString())
+          .then(text => res.end(text));
+      } else if (reqUrl.pathname === "/json") {
         // Handle the JSON version of the endpoint
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(debugInfo));
