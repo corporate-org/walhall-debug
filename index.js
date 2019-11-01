@@ -47,11 +47,17 @@ const httpServer = http.createServer((req, res) => {
     // Some diagnostic tests are asynchonus, so we use a Promise to pick up when they
     // all finish
     getDebugInfo().then(async (debugInfo) => {
-      if (reqUrl.pathname.startsWith("/fetch/") && reqUrl.query) {
-        res.setHeader('Content-Type', 'text/html');
+      if (reqUrl.pathname.startsWith("/fetch/get") && reqUrl.query) {
+
         fetch(reqUrl.query)
-          .then(fetchRes => fetchRes.text())
-          .catch(error => error.toString())
+          .then(fetchRes => {
+            res.setHeader('Content-Type', fetchRes.headers.get('Content-Type'));
+            return fetchRes.buffer();
+          })
+          .catch(error => {
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            return error.toString();
+          })
           .then(text => res.end(text));
       } else if (reqUrl.pathname === "/json") {
         // Handle the JSON version of the endpoint
@@ -59,7 +65,7 @@ const httpServer = http.createServer((req, res) => {
         res.end(JSON.stringify(debugInfo));
       } else {
         // For ease of use, we serve the HTML version on anything that is not /json
-        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.end(await formatDebugInfoAsHtml(debugInfo));
       }
     });
