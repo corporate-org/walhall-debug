@@ -13,7 +13,10 @@ A container that excercises functionality in Walhall to aid with debugging issue
 5. Click the generated url to see the debug report.
 
 ## Functionality
+### Environment Summary
 * The module exposes a human readable HTML report on `/` and a machine readable JSON report on `/json`
+
+### Generate Container Logs
 * The module produces log messages at INFO and ERROR levels for every request (visible in container logs.)
 * The entire query string of both endpoints is included in the INFO and ERROR logs. For example:
 ```
@@ -22,7 +25,18 @@ GET /json?SomeStringXYZ
 This is an INFO level message. [SomeStringXYZ]
 This is an ERROR level message. [SomeStringXYZ]
 ```
+
+### Initiate HTTP requests from container
+* An HTTP GET request can be generated from the container. The URL requested is the query string on the `/fetch/get` endpoint.
+```
+GET /fetch/get?http://some-in-cluster-service:3981/resource
+```
+Will make an HTTP GET request for `/resource` on port `3981` to the service that resolves from the name `some-in-cluster-service`.
+
+### Database connectivity test
 * A connection is made to the database and a simple query is executed.
+
+### Configure exposed port on container
 * The port the container runs on can be configured by the `PORT` environmental variable.
 
 ## Running Locally
